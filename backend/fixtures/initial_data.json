@@ -1,0 +1,74 @@
+[
+  {
+    "model": "movies.movie",
+    "pk": 1,
+    "fields": {
+      "title": "Интерстеллар",
+      "original_title": "Interstellar",
+      "description": "Когда засуха, пыльные бури и вымирание растений приводят человечество к продовольственному кризису, коллектив исследователей и учёных отправляется сквозь червоточину в путешествие, чтобы превзойти прежние ограничения для космических путешествий человека и найти планету с подходящими для человечества условиями.",
+      "year": 2014,
+      "duration": 169,
+      "movie_type": "movie",
+      "genres": ["Фантастика", "Драма", "Приключения"],
+      "countries": ["США", "Великобритания"],
+      "directors": ["Кристофер Нолан"],
+      "actors": ["Мэттью МакКонахи", "Энн Хэтэуэй", "Джессика Честейн"],
+      "kinopoisk_rating": 8.6,
+      "imdb_rating": 8.6,
+      "poster_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1946459/bf93b465-1189-4155-9dd1-cb9fb5cb1bb5/300x450",
+      "backdrop_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1946459/bf93b465-1189-4155-9dd1-cb9fb5cb1bb5/1920x1080",
+      "trailer_url": "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "movies.movie",
+    "pk": 2,
+    "fields": {
+      "title": "Начало",
+      "original_title": "Inception",
+      "description": "Кобб — талантливый вор, лучший из лучших в опасном искусстве извлечения: он крадёт ценные секреты из глубин подсознания во время сна, когда человеческий разум наиболее уязвим.",
+      "year": 2010,
+      "duration": 148,
+      "movie_type": "movie",
+      "genres": ["Фантастика", "Боевик", "Триллер"],
+      "countries": ["США", "Великобритания"],
+      "directors": ["Кристофер Нолан"],
+      "actors": ["Леонардо ДиКаприо", "Марион Котийяр", "Том Харди"],
+      "kinopoisk_rating": 8.8,
+      "imdb_rating": 8.8,
+      "poster_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1777765/8b2b7c2d-1b2e-4b2e-8b2b-7c2d1b2e4b2e/300x450",
+      "backdrop_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1777765/8b2b7c2d-1b2e-4b2e-8b2b-7c2d1b2e4b2e/1920x1080",
+      "trailer_url": "https://www.youtube.com/watch?v=YoHD9XEInc0",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "movies.movie",
+    "pk": 3,
+    "fields": {
+      "title": "Темный рыцарь",
+      "original_title": "The Dark Knight",
+      "description": "Бэтмен поднимает ставки в войне с криминалом. С помощью лейтенанта Джима Гордона и прокурора Харви Дента он намерен очистить улицы от преступности, которая отравляет город.",
+      "year": 2008,
+      "duration": 152,
+      "movie_type": "movie",
+      "genres": ["Боевик", "Криминал", "Драма"],
+      "countries": ["США", "Великобритания"],
+      "directors": ["Кристофер Нолан"],
+      "actors": ["Кристиан Бэйл", "Хит Леджер", "Аарон Экхарт"],
+      "kinopoisk_rating": 8.9,
+      "imdb_rating": 9.0,
+      "poster_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1777765/3c3c3c3c-3c3c-3c3c-3c3c-3c3c3c3c3c3c/300x450",
+      "backdrop_url": "https://avatars.mds.yandex.net/get-kinopoisk-image/1777765/3c3c3c3c-3c3c-3c3c-3c3c-3c3c3c3c3c3c/1920x1080",
+      "trailer_url": "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]
