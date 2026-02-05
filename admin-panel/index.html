@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Admin - Панель управления</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <!-- Навигация -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-bold text-gray-800">🎬 Cinema Admin</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button 
+                            @click="currentView = 'movies'"
+                            :class="currentView === 'movies' ? 'text-blue-600' : 'text-gray-600'"
+                            class="hover:text-blue-600"
+                        >
+                            Фильмы
+                        </button>
+                        <button 
+                            @click="currentView = 'parser'"
+                            :class="currentView === 'parser' ? 'text-blue-600' : 'text-gray-600'"
+                            class="hover:text-blue-600"
+                        >
+                            Парсер
+                        </button>
+                        <button 
+                            @click="currentView = 'analytics'"
+                            :class="currentView === 'analytics' ? 'text-blue-600' : 'text-gray-600'"
+                            class="hover:text-blue-600"
+                        >
+                            Аналитика
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="max-w-7xl mx-auto py-6 px-4">
+            <!-- Фильмы -->
+            <div v-if="currentView === 'movies'" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Управление фильмами</h2>
+                    <button 
+                        @click="showAddMovieModal = true"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        Добавить фильм
+                    </button>
+                </div>
+
+                <!-- Поиск и фильтры -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input 
+                            v-model="searchQuery"
+                            type="text" 
+                            placeholder="Поиск фильмов..."
+                            class="border rounded-lg px-3 py-2"
+                        >
+                        <select v-model="filterType" class="border rounded-lg px-3 py-2">
+                            <option value="">Все типы</option>
+                            <option value="movie">Фильмы</option>
+                            <option value="series">Сериалы</option>
+                            <option value="anime">Аниме</option>
+                        </select>
+                        <select v-model="filterYear" class="border rounded-lg px-3 py-2">
+                            <option value="">Все годы</option>
+                            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Список фильмов -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Фильм</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Год</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Рейтинг</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr v-for="movie in filteredMovies" :key="movie.id">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img :src="movie.poster_url || '/placeholder.jpg'" 
+                                             class="h-12 w-8 object-cover rounded mr-4">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ movie.title }}</div>
+                                            <div class="text-sm text-gray-500">{{ movie.original_title }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ movie.year }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ movie.rating || 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span :class="movie.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                          class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                        {{ movie.is_active ? 'Активный' : 'Неактивный' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button @click="editMovie(movie)" class="text-blue-600 hover:text-blue-900 mr-3">
+                                        Редактировать
+                                    </button>
+                                    <button @click="toggleMovieStatus(movie)" 
+                                            :class="movie.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'">
+                                        {{ movie.is_active ? 'Деактивировать' : 'Активировать' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Парсер -->
+            <div v-if="currentView === 'parser'" class="space-y-6">
+                <h2 class="text-2xl font-bold text-gray-900">Парсер контента</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Настройки парсера -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-medium mb-4">Настройки парсинга</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Источник</label>
+                                <select v-model="parserSource" class="w-full border rounded-lg px-3 py-2">
+                                    <option value="hdrezka">HDRezka</option>
+                                    <option value="lordfilm">Lordfilm</option>
+                                    <option value="kinogo">Kinogo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Количество фильмов</label>
+                                <input v-model="parserLimit" type="number" min="1" max="100" 
+                                       class="w-full border rounded-lg px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Категория</label>
+                                <select v-model="parserCategory" class="w-full border rounded-lg px-3 py-2">
+                                    <option value="new">Новинки</option>
+                                    <option value="popular">Популярные</option>
+                                    <option value="top">Топ рейтинга</option>
+                                </select>
+                            </div>
+                            <button 
+                                @click="startParsing"
+                                :disabled="isParsingActive"
+                                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                            >
+                                {{ isParsingActive ? 'Парсинг идет...' : 'Запустить парсинг' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Статус парсера -->
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-medium mb-4">Статус парсинга</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span>Статус:</span>
+                                <span :class="isParsingActive ? 'text-green-600' : 'text-gray-600'">
+                                    {{ isParsingActive ? 'Активен' : 'Остановлен' }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Обработано:</span>
+                                <span>{{ parsingProgress.processed }} / {{ parsingProgress.total }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Добавлено новых:</span>
+                                <span class="text-green-600">{{ parsingProgress.added }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Ошибок:</span>
+                                <span class="text-red-600">{{ parsingProgress.errors }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Прогресс бар -->
+                        <div v-if="isParsingActive" class="mt-4">
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                     :style="`width: ${(parsingProgress.processed / parsingProgress.total) * 100}%`">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Лог парсинга -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-medium mb-4">Лог парсинга</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg h-64 overflow-y-auto font-mono text-sm">
+                        <div v-for="log in parsingLogs" :key="log.id" class="mb-1">
+                            [{{ log.timestamp }}] {{ log.message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Аналитика -->
+            <div v-if="currentView === 'analytics'" class="space-y-6">
+                <h2 class="text-2xl font-bold text-gray-900">Аналитика</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="text-2xl font-bold text-blue-600">{{ analytics.totalMovies }}</div>
+                        <div class="text-gray-600">Всего фильмов</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="text-2xl font-bold text-green-600">{{ analytics.totalUsers }}</div>
+                        <div class="text-gray-600">Пользователей</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="text-2xl font-bold text-purple-600">{{ analytics.totalViews }}</div>
+                        <div class="text-gray-600">Просмотров</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="text-2xl font-bold text-orange-600">{{ analytics.activeToday }}</div>
+                        <div class="text-gray-600">Активных сегодня</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    currentView: 'movies',
+                    movies: [],
+                    searchQuery: '',
+                    filterType: '',
+                    filterYear: '',
+                    years: [],
+                    showAddMovieModal: false,
+                    
+                    // Парсер
+                    parserSource: 'hdrezka',
+                    parserLimit: 20,
+                    parserCategory: 'new',
+                    isParsingActive: false,
+                    parsingProgress: {
+                        processed: 0,
+                        total: 0,
+                        added: 0,
+                        errors: 0
+                    },
+                    parsingLogs: [],
+                    
+                    // Аналитика
+                    analytics: {
+                        totalMovies: 0,
+                        totalUsers: 0,
+                        totalViews: 0,
+                        activeToday: 0
+                    }
+                }
+            },
+            computed: {
+                filteredMovies() {
+                    return this.movies.filter(movie => {
+                        const matchesSearch = movie.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                                            movie.original_title.toLowerCase().includes(this.searchQuery.toLowerCase())
+                        const matchesType = !this.filterType || movie.movie_type === this.filterType
+                        const matchesYear = !this.filterYear || movie.year == this.filterYear
+                        
+                        return matchesSearch && matchesType && matchesYear
+                    })
+                }
+            },
+            methods: {
+                async loadMovies() {
+                    try {
+                        const response = await axios.get('/api/movies/')
+                        this.movies = response.data.results || response.data
+                        
+                        // Извлекаем уникальные годы
+                        this.years = [...new Set(this.movies.map(m => m.year))].sort((a, b) => b - a)
+                    } catch (error) {
+                        console.error('Ошибка загрузки фильмов:', error)
+                    }
+                },
+                
+                async toggleMovieStatus(movie) {
+                    try {
+                        await axios.patch(`/api/movies/${movie.id}/`, {
+                            is_active: !movie.is_active
+                        })
+                        movie.is_active = !movie.is_active
+                    } catch (error) {
+                        console.error('Ошибка изменения статуса:', error)
+                    }
+                },
+                
+                editMovie(movie) {
+                    // TODO: Открыть модальное окно редактирования
+                    console.log('Редактирование фильма:', movie)
+                },
+                
+                async startParsing() {
+                    this.isParsingActive = true
+                    this.parsingProgress = { processed: 0, total: this.parserLimit, added: 0, errors: 0 }
+                    this.parsingLogs = []
+                    
+                    try {
+                        const response = await axios.post('/api/parser/start/', {
+                            source: this.parserSource,
+                            limit: this.parserLimit,
+                            category: this.parserCategory
+                        })
+                        
+                        // Симуляция прогресса (в реальности нужен WebSocket)
+                        this.simulateParsingProgress()
+                    } catch (error) {
+                        console.error('Ошибка запуска парсера:', error)
+                        this.isParsingActive = false
+                    }
+                },
+                
+                simulateParsingProgress() {
+                    const interval = setInterval(() => {
+                        if (this.parsingProgress.processed < this.parsingProgress.total) {
+                            this.parsingProgress.processed++
+                            this.parsingProgress.added += Math.random() > 0.7 ? 1 : 0
+                            this.parsingProgress.errors += Math.random() > 0.9 ? 1 : 0
+                            
+                            this.parsingLogs.unshift({
+                                id: Date.now(),
+                                timestamp: new Date().toLocaleTimeString(),
+                                message: `Обработан фильм ${this.parsingProgress.processed}/${this.parsingProgress.total}`
+                            })
+                        } else {
+                            this.isParsingActive = false
+                            clearInterval(interval)
+                            this.parsingLogs.unshift({
+                                id: Date.now(),
+                                timestamp: new Date().toLocaleTimeString(),
+                                message: 'Парсинг завершен'
+                            })
+                        }
+                    }, 1000)
+                },
+                
+                async loadAnalytics() {
+                    try {
+                        const response = await axios.get('/api/analytics/')
+                        this.analytics = response.data
+                    } catch (error) {
+                        console.error('Ошибка загрузки аналитики:', error)
+                        // Заглушка для демо
+                        this.analytics = {
+                            totalMovies: 1247,
+                            totalUsers: 3521,
+                            totalViews: 15678,
+                            activeToday: 234
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.loadMovies()
+                this.loadAnalytics()
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
