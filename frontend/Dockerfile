@@ -2,9 +2,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Копируем package.json и устанавливаем зависимости
-COPY package*.json ./
-RUN npm ci --only=production
+# Копируем package.json
+COPY package.json ./
+
+# Устанавливаем зависимости
+RUN npm install
 
 # Копируем исходный код
 COPY . .
