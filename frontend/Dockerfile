@@ -1,27 +1,37 @@
-FROM node:18-alpine
+FROM node:18-alpine as builder
 
 WORKDIR /app
+
+# Устанавливаем зависимости для сборки
+RUN apk add --no-cache python3 make g++
 
 # Копируем package.json
 COPY package.json ./
 
-# Устанавливаем зависимости
+# Устанавливаем все зависимости (включая dev)
 RUN npm install
 
-# Копируем исходный код
+# Копируем весь исходный код
 COPY . .
 
-# Устанавливаем переменные окружения
+# Устанавливаем переменные окружения для сборки
 ENV NODE_ENV=production
 ENV VITE_API_URL=https://cinema.horizonserver.space/api
 
 # Собираем приложение
 RUN npm run build
 
-# Используем nginx для раздачи статики
+# Production образ
 FROM nginx:alpine
-COPY --from=0 /app/dist /usr/share/nginx/html
+
+# Копируем собранное приложение
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Копируем конфигурацию nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Открываем порт
 EXPOSE 80
+
+# Запускаем nginx
 CMD ["nginx", "-g", "daemon off;"]
